@@ -84,3 +84,4 @@ public class FeatController {
 		return JS.message(HttpStatus.OK, "Feat item added");
 	}
 }
+
