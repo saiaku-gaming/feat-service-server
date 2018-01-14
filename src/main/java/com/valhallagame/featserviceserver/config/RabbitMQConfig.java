@@ -13,21 +13,38 @@ import com.valhallagame.common.rabbitmq.RabbitMQRouting;
 
 @Configuration
 public class RabbitMQConfig {
-	// Feat configs
-	@Bean
-	public DirectExchange featExchange() {
-		return new DirectExchange(RabbitMQRouting.Exchange.FEAT.name());
-	}
 
 	@Bean
-	public Queue featCharacterDelete() {
+	public DirectExchange statisticsExchange() {
+		return new DirectExchange(RabbitMQRouting.Exchange.STATISTICS.name());
+	}
+	
+	@Bean
+	public DirectExchange characterExchange() {
+		return new DirectExchange(RabbitMQRouting.Exchange.CHARACTER.name());
+	}
+	
+	@Bean
+	public Queue featCharacterDeleteQueue() {
 		return new Queue("featCharacterDeleteQueue");
 	}
 
 	@Bean
+	public Queue featStatisticsIntCounterQueue() {
+		return new Queue("featStatisticsIntCounterQueue");
+	}
+
+	
+	@Bean
 	public Binding bindingCharacterDeleted(DirectExchange characterExchange, Queue featCharacterDeleteQueue) {
 		return BindingBuilder.bind(featCharacterDeleteQueue).to(characterExchange)
 				.with(RabbitMQRouting.Character.DELETE);
+	}
+	
+	@Bean
+	public Binding bindingStatisticsIntCounter(DirectExchange statisticsExchange, Queue featStatisticsIntCounterQueue) {
+		return BindingBuilder.bind(featStatisticsIntCounterQueue).to(statisticsExchange)
+				.with(RabbitMQRouting.Statistics.INT_COUNTER);
 	}
 
 	@Bean

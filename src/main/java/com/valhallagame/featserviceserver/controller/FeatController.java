@@ -46,8 +46,8 @@ public class FeatController {
 	@RequestMapping(path = "/get-feats", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<JsonNode> getFeats(@Valid @RequestBody GetFeatsParameter input) {
-		List<Feat> Feats = featService.getFeats(input.getCharacterName());
-		List<String> items = Feats.stream().map(Feat::getName).collect(Collectors.toList());
+		List<Feat> feats = featService.getFeats(input.getCharacterName());
+		List<String> items = feats.stream().map(Feat::getName).collect(Collectors.toList());
 		return JS.message(HttpStatus.OK, items);
 	}
 
@@ -71,14 +71,14 @@ public class FeatController {
 	public ResponseEntity<JsonNode> addFeat(@Valid @RequestBody AddFeatParameter input) {
 
 		// Duplicate protection
-		List<Feat> Feats = featService.getFeats(input.getCharacterName());
-		List<String> items = Feats.stream().map(Feat::getName).collect(Collectors.toList());
+		List<Feat> feats = featService.getFeats(input.getCharacterName());
+		List<String> items = feats.stream().map(Feat::getName).collect(Collectors.toList());
 		if (items.contains(input.getFeatName())) {
 			return JS.message(HttpStatus.ALREADY_REPORTED, "Already in store");
 		}
 
 		featService.saveFeat(new Feat(input.getFeatName(), input.getCharacterName()));
-		rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD_FEAT.name(),
+		rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD.name(),
 				new NotificationMessage(input.getCharacterName(), "feat item added"));
 
 		return JS.message(HttpStatus.OK, "Feat item added");

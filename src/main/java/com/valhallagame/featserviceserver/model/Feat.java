@@ -27,11 +27,11 @@ public class Feat {
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "character_owner")
-	private String characterOwner;
+	@Column(name = "characterName")
+	private String characterName;
 
-	public Feat(String name, String characterOwner) {
+	public Feat(String name, String characterName) {
 		this.name = name;
-		this.characterOwner = characterOwner;
+		this.characterName = characterName;
 	}
 }
