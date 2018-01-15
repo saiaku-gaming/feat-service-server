@@ -51,7 +51,7 @@ public class FeatController {
 		// Duplicate protection
 		List<Feat> feats = featService.getFeats(input.getCharacterName());
 		List<String> items = feats.stream().map(Feat::getName).collect(Collectors.toList());
-		if (items.contains(input.getFeatName())) {
+		if (items.contains(input.getFeatName().name())) {
 			return JS.message(HttpStatus.ALREADY_REPORTED, "Already in store");
 		}
 
@@ -63,7 +63,7 @@ public class FeatController {
 	@ResponseBody
 	public ResponseEntity<JsonNode> addFeat(@Valid @RequestBody RemoveFeatParameter input) {
 		List<Feat> feats = featService.getFeats(input.getCharacterName());
-		Optional<Feat> featOpt = feats.stream().filter(f-> f.getName().equals(input.getFeatName())).findAny();
+		Optional<Feat> featOpt = feats.stream().filter(f-> f.getName().equals(input.getFeatName().name())).findAny();
 		if(featOpt.isPresent()) {
 			featService.removeFeat(featOpt.get());
 			rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(),

@@ -3,6 +3,7 @@ package com.valhallagame.featserviceserver.trigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.valhallagame.featserviceclient.message.FeatName;
 import com.valhallagame.featserviceserver.service.FeatService;
 import com.valhallagame.statisticsserviceclient.message.StatisticsKey;
 
@@ -16,7 +17,7 @@ public class KillTheEinharjer extends FeatTrigger implements IntCounterTriggerab
 	private FeatService featService;
 	
 	public KillTheEinharjer() {
-		super("KillTheEinharjer");
+		super(FeatName.KILL_THE_EINHARJER);
 	}
 	
 	@Override

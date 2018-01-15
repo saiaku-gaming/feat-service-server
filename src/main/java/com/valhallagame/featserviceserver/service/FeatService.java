@@ -2,7 +2,7 @@ package com.valhallagame.featserviceserver.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +20,7 @@ import com.valhallagame.characterserviceclient.model.CharacterData;
 import com.valhallagame.common.RestResponse;
 import com.valhallagame.common.rabbitmq.NotificationMessage;
 import com.valhallagame.common.rabbitmq.RabbitMQRouting;
+import com.valhallagame.featserviceclient.message.FeatName;
 import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.repository.FeatRepository;
 import com.valhallagame.featserviceserver.trigger.FeatTrigger;
@@ -40,7 +41,7 @@ public class FeatService {
 	@Autowired
 	private KillTheEinharjer killTheEinharjer;
 	
-	private Map<String, IntCounterTriggerable> intCounterTriggerable = new HashMap<>();
+	private Map<FeatName, IntCounterTriggerable> intCounterTriggerable = new EnumMap<>(FeatName.class);
 	
 	@PostConstruct
 	private void init() {
@@ -75,20 +76,26 @@ public class FeatService {
 		notOwnedFeats.forEach(feat -> feat.intCounterTrigger(characterName, key, count));
 	}
 
-	private <T> List<T> filterNotOwned(Map<String, T> allFeats,
+	private <T> List<T> filterNotOwned(Map<FeatName, T> allFeats,
 			List<Feat> ownedFeats) {
 
-		Map<String, T> out = new HashMap<>(allFeats);
+		Map<FeatName, T> out = new EnumMap<>(allFeats);
 		for(Feat owned : ownedFeats) {
-			out.remove(owned.getName());
+			try {
+				FeatName featName = FeatName.valueOf(owned.getName());
+				out.remove(featName);
+			} catch (IllegalArgumentException e) {
+				//Feat that does not have a correct enum value.
+				featRepository.delete(owned);
+			}
 		}
 		return new ArrayList<>(out.values());
 	}
 
-	public void createFeat(String characterName, String name) {
+	public void createFeat(String characterName, FeatName featName) {
 		Feat feat = new Feat();
 		feat.setCharacterName(characterName);
-		feat.setName(name);
+		feat.setName(featName.name());
 		featRepository.save(feat);
 		
 		try {
