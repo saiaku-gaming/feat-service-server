@@ -25,7 +25,7 @@ import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.repository.FeatRepository;
 import com.valhallagame.featserviceserver.trigger.FeatTrigger;
 import com.valhallagame.featserviceserver.trigger.IntCounterTriggerable;
-import com.valhallagame.featserviceserver.trigger.KillTheEinharjer;
+import com.valhallagame.featserviceserver.trigger.EinharjerSlayer;
 
 @Service
 public class FeatService {
@@ -39,7 +39,7 @@ public class FeatService {
 	private RabbitTemplate rabbitTemplate;
 
 	@Autowired
-	private KillTheEinharjer killTheEinharjer;
+	private EinharjerSlayer killTheEinharjer;
 	
 	private Map<FeatName, IntCounterTriggerable> intCounterTriggerable = new EnumMap<>(FeatName.class);
 	

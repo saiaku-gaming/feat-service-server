@@ -11,13 +11,13 @@ import lombok.EqualsAndHashCode;
 
 @Component
 @EqualsAndHashCode(callSuper=true)
-public class KillTheEinharjer extends FeatTrigger implements IntCounterTriggerable {
+public class EinharjerSlayer extends FeatTrigger implements IntCounterTriggerable {
 
 	@Autowired
 	private FeatService featService;
 	
-	public KillTheEinharjer() {
-		super(FeatName.KILL_THE_EINHARJER);
+	public EinharjerSlayer() {
+		super(FeatName.EINHARJER_SLAYER);
 	}
 	
 	@Override
