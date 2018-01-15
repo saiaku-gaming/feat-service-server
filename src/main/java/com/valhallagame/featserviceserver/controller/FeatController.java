@@ -39,7 +39,7 @@ public class FeatController {
 	@RequestMapping(path = "/get-feats", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<JsonNode> getFeats(@Valid @RequestBody GetFeatsParameter input) {
-		List<Feat> feats = featService.getFeats(input.getCharacterName());
+		List<Feat> feats = featService.getFeats(input.getCharacterName().toLowerCase());
 		List<String> items = feats.stream().map(Feat::getName).collect(Collectors.toList());
 		return JS.message(HttpStatus.OK, items);
 	}
