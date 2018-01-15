@@ -1,6 +1,5 @@
 package com.valhallagame.featserviceserver.controller;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,15 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.valhallagame.characterserviceclient.CharacterServiceClient;
-import com.valhallagame.characterserviceclient.model.CharacterData;
 import com.valhallagame.common.JS;
-import com.valhallagame.common.RestResponse;
 import com.valhallagame.common.rabbitmq.NotificationMessage;
 import com.valhallagame.common.rabbitmq.RabbitMQRouting;
 import com.valhallagame.featserviceclient.message.AddFeatParameter;
-import com.valhallagame.featserviceclient.message.DebugAddFeatParameter;
 import com.valhallagame.featserviceclient.message.GetFeatsParameter;
+import com.valhallagame.featserviceclient.message.RemoveFeatParameter;
 import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.service.FeatService;
 
@@ -40,30 +36,12 @@ public class FeatController {
 	@Autowired
 	private FeatService featService;
 
-	@Autowired
-	private CharacterServiceClient characterServiceClient;
-
 	@RequestMapping(path = "/get-feats", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<JsonNode> getFeats(@Valid @RequestBody GetFeatsParameter input) {
 		List<Feat> feats = featService.getFeats(input.getCharacterName());
 		List<String> items = feats.stream().map(Feat::getName).collect(Collectors.toList());
 		return JS.message(HttpStatus.OK, items);
-	}
-
-	@RequestMapping(path = "/debug-add-feat", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<JsonNode> addFeat(@Valid @RequestBody DebugAddFeatParameter input) throws IOException {
-		RestResponse<CharacterData> characterResp = characterServiceClient
-				.getCharacterWithoutOwnerValidation(input.getUsername().toLowerCase());
-		Optional<CharacterData> characterOpt = characterResp.get();
-		if (characterOpt.isPresent()) {
-			AddFeatParameter newItemParam = new AddFeatParameter(characterOpt.get().getCharacterName(),
-					input.getItemName());
-			return addFeat(newItemParam);
-		} else {
-			return JS.message(characterResp);
-		}
 	}
 
 	@RequestMapping(path = "/add-feat", method = RequestMethod.POST)
@@ -77,11 +55,23 @@ public class FeatController {
 			return JS.message(HttpStatus.ALREADY_REPORTED, "Already in store");
 		}
 
-		featService.saveFeat(new Feat(input.getFeatName(), input.getCharacterName()));
-		rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD.name(),
-				new NotificationMessage(input.getCharacterName(), "feat item added"));
-
+		featService.createFeat(input.getCharacterName(), input.getFeatName());
 		return JS.message(HttpStatus.OK, "Feat item added");
+	}
+	
+	@RequestMapping(path = "/remove-feat", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<JsonNode> addFeat(@Valid @RequestBody RemoveFeatParameter input) {
+		List<Feat> feats = featService.getFeats(input.getCharacterName());
+		Optional<Feat> featOpt = feats.stream().filter(f-> f.getName().equals(input.getFeatName())).findAny();
+		if(featOpt.isPresent()) {
+			featService.removeFeat(featOpt.get());
+			rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(),
+					new NotificationMessage(input.getCharacterName(), "feat item removed"));
+			return JS.message(HttpStatus.OK, "Feat item removed");
+		} else {
+			return JS.message(HttpStatus.NOT_FOUND, "No feat found");
+		}
 	}
 }
 

@@ -106,4 +106,21 @@ public class FeatService {
 		}
 
 	}
+
+	public void removeFeat(Feat feat) {
+		try {
+			RestResponse<CharacterData> characterResp = characterServiceClient.getCharacterWithoutOwnerValidation(feat.getCharacterName());
+			Optional<CharacterData> characterOpt = characterResp.get();
+			if(characterOpt.isPresent()) {
+				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(), feat.getCharacterName() + " lost " + feat.getName());
+				message.addData("feat", feat.getName());
+				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(), message);
+			} else {
+				logger.warn("Feat service tried to remove a feat for character {}, but no such character exists", feat.getCharacterName());
+			}
+		} catch (IOException e) {
+			logger.error("Character service error", e);
+		}
+		featRepository.delete(feat);
+	}
 }
