@@ -51,19 +51,19 @@ public class FeatController {
 		// Duplicate protection
 		List<Feat> feats = featService.getFeats(input.getCharacterName());
 		List<String> items = feats.stream().map(Feat::getName).collect(Collectors.toList());
-		if (items.contains(input.getFeatName().name())) {
+		if (items.contains(input.getName().name())) {
 			return JS.message(HttpStatus.ALREADY_REPORTED, "Already in store");
 		}
 
-		featService.createFeat(input.getCharacterName(), input.getFeatName());
+		featService.createFeat(input.getCharacterName(), input.getName());
 		return JS.message(HttpStatus.OK, "Feat item added");
 	}
 	
 	@RequestMapping(path = "/remove-feat", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<JsonNode> addFeat(@Valid @RequestBody RemoveFeatParameter input) {
+	public ResponseEntity<JsonNode> removeFeat(@Valid @RequestBody RemoveFeatParameter input) {
 		List<Feat> feats = featService.getFeats(input.getCharacterName());
-		Optional<Feat> featOpt = feats.stream().filter(f-> f.getName().equals(input.getFeatName().name())).findAny();
+		Optional<Feat> featOpt = feats.stream().filter(f-> f.getName().equals(input.getName().name())).findAny();
 		if(featOpt.isPresent()) {
 			featService.removeFeat(featOpt.get());
 			rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(),

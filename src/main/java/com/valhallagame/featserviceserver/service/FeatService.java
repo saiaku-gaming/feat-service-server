@@ -67,7 +67,7 @@ public class FeatService {
 	}
 
 	public List<Feat> getFeats(String characterName) {
-		return featRepository.findByCharacterName(characterName);
+		return featRepository.findByCharacterName(characterName.toLowerCase());
 	}
 
 	public void parseIntCounterData(String characterName, String key, int count) {
@@ -94,7 +94,7 @@ public class FeatService {
 
 	public void createFeat(String characterName, FeatName featName) {
 		Feat feat = new Feat();
-		feat.setCharacterName(characterName);
+		feat.setCharacterName(characterName.toLowerCase());
 		feat.setName(featName.name());
 		featRepository.save(feat);
 		
