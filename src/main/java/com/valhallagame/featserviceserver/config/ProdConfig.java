@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Profile;
 import com.valhallagame.characterserviceclient.CharacterServiceClient;
 import com.valhallagame.common.DefaultServicePortMappings;
 import com.valhallagame.personserviceclient.PersonServiceClient;
+import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient;
 
 @Configuration
 @Profile("production")
@@ -24,8 +25,8 @@ public class ProdConfig {
 	}
 	
 	@Bean
-	public PersonServiceClient wardrobeServiceClient() {
-		PersonServiceClient.init("http://person-service:" + DefaultServicePortMappings.WARDROBE_SERVICE_PORT);
-		return PersonServiceClient.get();
+	public WardrobeServiceClient wardrobeServiceClient() {
+		WardrobeServiceClient.init("http://wardrobe-service:" + DefaultServicePortMappings.WARDROBE_SERVICE_PORT);
+		return WardrobeServiceClient.get();
 	}
 }
