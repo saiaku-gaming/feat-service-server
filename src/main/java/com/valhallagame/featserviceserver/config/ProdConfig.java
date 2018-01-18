@@ -22,4 +22,10 @@ public class ProdConfig {
 		PersonServiceClient.init("http://person-service:" + DefaultServicePortMappings.PERSON_SERVICE_PORT);
 		return PersonServiceClient.get();
 	}
+	
+	@Bean
+	public PersonServiceClient wardrobeServiceClient() {
+		PersonServiceClient.init("http://person-service:" + DefaultServicePortMappings.WARDROBE_SERVICE_PORT);
+		return PersonServiceClient.get();
+	}
 }

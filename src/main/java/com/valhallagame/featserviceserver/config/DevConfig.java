@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Profile;
 
 import com.valhallagame.characterserviceclient.CharacterServiceClient;
 import com.valhallagame.personserviceclient.PersonServiceClient;
+import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient;
 
 @Configuration
 @Profile("default")
@@ -18,5 +19,10 @@ public class DevConfig {
 	@Bean
 	public PersonServiceClient personServiceClient() {
 		return PersonServiceClient.get();
+	}
+	
+	@Bean
+	public WardrobeServiceClient wardrobeServiceClient() {
+		return WardrobeServiceClient.get();
 	}
 }
