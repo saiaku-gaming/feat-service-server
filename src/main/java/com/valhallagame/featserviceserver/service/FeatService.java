@@ -23,38 +23,38 @@ import com.valhallagame.common.rabbitmq.RabbitMQRouting;
 import com.valhallagame.featserviceclient.message.FeatName;
 import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.repository.FeatRepository;
+import com.valhallagame.featserviceserver.trigger.EinharjerSlayer;
 import com.valhallagame.featserviceserver.trigger.FeatTrigger;
 import com.valhallagame.featserviceserver.trigger.IntCounterTriggerable;
-import com.valhallagame.featserviceserver.trigger.EinharjerSlayer;
 
 @Service
 public class FeatService {
-	
+
 	@Autowired
 	CharacterServiceClient characterServiceClient;
-	
+
 	Logger logger = LoggerFactory.getLogger(FeatService.class);
-	
+
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
 	@Autowired
 	private EinharjerSlayer killTheEinharjer;
-	
+
 	private Map<FeatName, IntCounterTriggerable> intCounterTriggerable = new EnumMap<>(FeatName.class);
-	
+
 	@PostConstruct
 	private void init() {
 		List<FeatTrigger> allFeatTriggers = new ArrayList<>();
- 		allFeatTriggers.add(killTheEinharjer);
-		
- 		for(FeatTrigger ft : allFeatTriggers) {
+		allFeatTriggers.add(killTheEinharjer);
+
+		for (FeatTrigger ft : allFeatTriggers) {
 			if (ft instanceof IntCounterTriggerable) {
 				intCounterTriggerable.put(ft.getName(), (IntCounterTriggerable) ft);
 			}
 		}
 	}
-	
+
 	@Autowired
 	private FeatRepository featRepository;
 
@@ -76,16 +76,15 @@ public class FeatService {
 		notOwnedFeats.forEach(feat -> feat.intCounterTrigger(characterName, key, count));
 	}
 
-	private <T> List<T> filterNotOwned(Map<FeatName, T> allFeats,
-			List<Feat> ownedFeats) {
+	private <T> List<T> filterNotOwned(Map<FeatName, T> allFeats, List<Feat> ownedFeats) {
 
 		Map<FeatName, T> out = new EnumMap<>(allFeats);
-		for(Feat owned : ownedFeats) {
+		for (Feat owned : ownedFeats) {
 			try {
 				FeatName featName = FeatName.valueOf(owned.getName());
 				out.remove(featName);
 			} catch (IllegalArgumentException e) {
-				//Feat that does not have a correct enum value.
+				// Feat that does not have a correct enum value.
 				featRepository.delete(owned);
 			}
 		}
@@ -97,16 +96,21 @@ public class FeatService {
 		feat.setCharacterName(characterName.toLowerCase());
 		feat.setName(featName.name());
 		featRepository.save(feat);
-		
+
 		try {
-			RestResponse<CharacterData> characterResp = characterServiceClient.getCharacterWithoutOwnerValidation(characterName);
+			RestResponse<CharacterData> characterResp = characterServiceClient
+					.getCharacterWithoutOwnerValidation(characterName);
 			Optional<CharacterData> characterOpt = characterResp.get();
-			if(characterOpt.isPresent()) {
-				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(), characterName + " got " + feat.getName());
+			if (characterOpt.isPresent()) {
+				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(),
+						characterName + " got " + feat.getName());
 				message.addData("feat", feat.getName());
-				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD.name(), message);
+				message.addData("characterName", characterName);
+				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD.name(),
+						message);
 			} else {
-				logger.warn("Feat service tried to create a feat for character {}, but no such character exists", characterName);
+				logger.warn("Feat service tried to create a feat for character {}, but no such character exists",
+						characterName);
 			}
 		} catch (IOException e) {
 			logger.error("Character service error", e);
@@ -116,14 +120,18 @@ public class FeatService {
 
 	public void removeFeat(Feat feat) {
 		try {
-			RestResponse<CharacterData> characterResp = characterServiceClient.getCharacterWithoutOwnerValidation(feat.getCharacterName());
+			RestResponse<CharacterData> characterResp = characterServiceClient
+					.getCharacterWithoutOwnerValidation(feat.getCharacterName());
 			Optional<CharacterData> characterOpt = characterResp.get();
-			if(characterOpt.isPresent()) {
-				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(), feat.getCharacterName() + " lost " + feat.getName());
+			if (characterOpt.isPresent()) {
+				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(),
+						feat.getCharacterName() + " lost " + feat.getName());
 				message.addData("feat", feat.getName());
-				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(), message);
+				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(),
+						message);
 			} else {
-				logger.warn("Feat service tried to remove a feat for character {}, but no such character exists", feat.getCharacterName());
+				logger.warn("Feat service tried to remove a feat for character {}, but no such character exists",
+						feat.getCharacterName());
 			}
 		} catch (IOException e) {
 			logger.error("Character service error", e);
