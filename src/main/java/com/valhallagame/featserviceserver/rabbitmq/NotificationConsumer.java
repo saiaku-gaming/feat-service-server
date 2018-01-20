@@ -31,12 +31,32 @@ public class NotificationConsumer {
 	}
 
 	@RabbitListener(queues = { "#{featStatisticsIntCounterQueue.name}" })
-	public void receiveStatisticsCounter(NotificationMessage message) {
+	public void receiveStatisticsIntCounter(NotificationMessage message) {
 		logger.info("Gout int counter");
 		Map<String, Object> data = message.getData();
 		String characterName = (String) data.get("characterName");
 		String key = (String) data.get("key");
 		int count = (Integer) data.get("count");
 		featService.parseIntCounterData(characterName, key, count);
+	}
+
+	@RabbitListener(queues = { "#{featStatisticsLowTimerQueue.name}" })
+	public void receiveStatisticsLowTimer(NotificationMessage message) {
+		logger.info("Gout low timer");
+		Map<String, Object> data = message.getData();
+		String characterName = (String) data.get("characterName");
+		String key = (String) data.get("key");
+		double timer = (Double) data.get("timer");
+		featService.parseLowTimerData(characterName, key, timer);
+	}
+
+	@RabbitListener(queues = { "#{featStatisticsHighTimerQueue.name}" })
+	public void receiveStatisticsHighTimer(NotificationMessage message) {
+		logger.info("Gout high timer");
+		Map<String, Object> data = message.getData();
+		String characterName = (String) data.get("characterName");
+		String key = (String) data.get("key");
+		double timer = (Double) data.get("timer");
+		featService.parseHighTimerData(characterName, key, timer);
 	}
 }

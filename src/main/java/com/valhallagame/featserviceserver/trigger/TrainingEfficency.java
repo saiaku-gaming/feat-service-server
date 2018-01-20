@@ -11,26 +11,26 @@ import lombok.EqualsAndHashCode;
 
 @Component
 @EqualsAndHashCode(callSuper = true)
-public class EinharjerSlayer extends FeatTrigger implements IntCounterTriggerable {
+public class TrainingEfficency extends FeatTrigger implements LowTimerTriggerable {
 
 	@Autowired
 	private FeatService featService;
 
-	public EinharjerSlayer() {
-		super(FeatName.EINHARJER_SLAYER);
+	public TrainingEfficency() {
+		super(FeatName.TRAINING_EFFICIENCY);
 	}
 
 	@Override
-	public void intCounterTrigger(String characterName, String key, int count) {
-
-		if (!StatisticsKey.EINHARJER_KILLED.name().equals(key)) {
+	public void lowTimerTrigger(String characterName, String key, double timer) {
+		if (!StatisticsKey.TRAINING_GROUNDS_CLEAR_TIME.name().equals(key)) {
 			return;
 		}
 
-		if (count < 1) {
+		if (timer > 60.0f) {
 			return;
 		}
 
 		featService.createFeat(characterName, getName());
 	}
+
 }

@@ -25,7 +25,10 @@ import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.repository.FeatRepository;
 import com.valhallagame.featserviceserver.trigger.EinharjerSlayer;
 import com.valhallagame.featserviceserver.trigger.FeatTrigger;
+import com.valhallagame.featserviceserver.trigger.HighTimerTriggerable;
 import com.valhallagame.featserviceserver.trigger.IntCounterTriggerable;
+import com.valhallagame.featserviceserver.trigger.LowTimerTriggerable;
+import com.valhallagame.featserviceserver.trigger.TrainingEfficency;
 
 @Service
 public class FeatService {
@@ -41,16 +44,28 @@ public class FeatService {
 	@Autowired
 	private EinharjerSlayer killTheEinharjer;
 
+	@Autowired
+	private TrainingEfficency trainingEfficency;
+
 	private Map<FeatName, IntCounterTriggerable> intCounterTriggerable = new EnumMap<>(FeatName.class);
+	private Map<FeatName, LowTimerTriggerable> lowTimerTriggerable = new EnumMap<>(FeatName.class);
+	private Map<FeatName, HighTimerTriggerable> highTimerTriggerable = new EnumMap<>(FeatName.class);
 
 	@PostConstruct
 	private void init() {
 		List<FeatTrigger> allFeatTriggers = new ArrayList<>();
 		allFeatTriggers.add(killTheEinharjer);
+		allFeatTriggers.add(trainingEfficency);
 
 		for (FeatTrigger ft : allFeatTriggers) {
 			if (ft instanceof IntCounterTriggerable) {
 				intCounterTriggerable.put(ft.getName(), (IntCounterTriggerable) ft);
+			}
+			if (ft instanceof LowTimerTriggerable) {
+				lowTimerTriggerable.put(ft.getName(), (LowTimerTriggerable) ft);
+			}
+			if (ft instanceof HighTimerTriggerable) {
+				highTimerTriggerable.put(ft.getName(), (HighTimerTriggerable) ft);
 			}
 		}
 	}
@@ -74,6 +89,18 @@ public class FeatService {
 		List<Feat> ownedFeats = featRepository.findByCharacterName(characterName);
 		List<IntCounterTriggerable> notOwnedFeats = filterNotOwned(intCounterTriggerable, ownedFeats);
 		notOwnedFeats.forEach(feat -> feat.intCounterTrigger(characterName, key, count));
+	}
+
+	public void parseLowTimerData(String characterName, String key, double timer) {
+		List<Feat> ownedFeats = featRepository.findByCharacterName(characterName);
+		List<LowTimerTriggerable> notOwnedFeats = filterNotOwned(lowTimerTriggerable, ownedFeats);
+		notOwnedFeats.forEach(feat -> feat.lowTimerTrigger(characterName, key, timer));
+	}
+
+	public void parseHighTimerData(String characterName, String key, double timer) {
+		List<Feat> ownedFeats = featRepository.findByCharacterName(characterName);
+		List<HighTimerTriggerable> notOwnedFeats = filterNotOwned(highTimerTriggerable, ownedFeats);
+		notOwnedFeats.forEach(feat -> feat.highTimerTrigger(characterName, key, timer));
 	}
 
 	private <T> List<T> filterNotOwned(Map<FeatName, T> allFeats, List<Feat> ownedFeats) {
