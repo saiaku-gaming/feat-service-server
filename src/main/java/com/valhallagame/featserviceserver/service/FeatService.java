@@ -126,7 +126,7 @@ public class FeatService {
 
 		try {
 			RestResponse<CharacterData> characterResp = characterServiceClient
-					.getCharacterWithoutOwnerValidation(characterName);
+					.getCharacter(characterName);
 			Optional<CharacterData> characterOpt = characterResp.get();
 			if (characterOpt.isPresent()) {
 				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(),
@@ -148,7 +148,7 @@ public class FeatService {
 	public void removeFeat(Feat feat) {
 		try {
 			RestResponse<CharacterData> characterResp = characterServiceClient
-					.getCharacterWithoutOwnerValidation(feat.getCharacterName());
+					.getCharacter(feat.getCharacterName());
 			Optional<CharacterData> characterOpt = characterResp.get();
 			if (characterOpt.isPresent()) {
 				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(),
