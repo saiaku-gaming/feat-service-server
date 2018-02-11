@@ -129,7 +129,8 @@ public class FeatService {
 					.getCharacter(characterName);
 			Optional<CharacterData> characterOpt = characterResp.get();
 			if (characterOpt.isPresent()) {
-				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(),
+				CharacterData character = characterOpt.get();
+				NotificationMessage message = new NotificationMessage(character.getOwnerUsername(),
 						characterName + " got " + feat.getName());
 				message.addData("feat", feat.getName());
 				message.addData("characterName", characterName);

@@ -1,5 +1,6 @@
 package com.valhallagame.featserviceserver.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,7 +18,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.valhallagame.characterserviceclient.CharacterServiceClient;
+import com.valhallagame.characterserviceclient.model.CharacterData;
 import com.valhallagame.common.JS;
+import com.valhallagame.common.RestResponse;
 import com.valhallagame.common.rabbitmq.NotificationMessage;
 import com.valhallagame.common.rabbitmq.RabbitMQRouting;
 import com.valhallagame.featserviceclient.message.AddFeatParameter;
@@ -35,6 +39,9 @@ public class FeatController {
 
 	@Autowired
 	private FeatService featService;
+	
+	@Autowired
+	private CharacterServiceClient characterServiceClient;
 
 	@RequestMapping(path = "/get-feats", method = RequestMethod.POST)
 	@ResponseBody
@@ -62,13 +69,21 @@ public class FeatController {
 
 	@RequestMapping(path = "/remove-feat", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<JsonNode> removeFeat(@Valid @RequestBody RemoveFeatParameter input) {
+	public ResponseEntity<JsonNode> removeFeat(@Valid @RequestBody RemoveFeatParameter input) throws IOException {
+		
+		RestResponse<CharacterData> characterResp = characterServiceClient.getCharacter(input.getCharacterName());
+		Optional<CharacterData> characterOpt = characterResp.get();
+		if(!characterOpt.isPresent()) {
+			return JS.message(characterResp);
+		}
+		CharacterData character = characterOpt.get();
+		
 		List<Feat> feats = featService.getFeats(input.getCharacterName());
 		Optional<Feat> featOpt = feats.stream().filter(f -> f.getName().equals(input.getName().name())).findAny();
 		if (featOpt.isPresent()) {
 			featService.removeFeat(featOpt.get());
 			rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(),
-					new NotificationMessage(input.getCharacterName(), "feat item removed"));
+					new NotificationMessage(character.getOwnerUsername(), "feat item removed"));
 			return JS.message(HttpStatus.OK, "Feat item removed");
 		} else {
 			return JS.message(HttpStatus.NOT_FOUND, "No feat found");
