@@ -25,6 +25,8 @@ import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.repository.FeatRepository;
 import com.valhallagame.featserviceserver.trigger.EinharjerSlayer;
 import com.valhallagame.featserviceserver.trigger.FeatTrigger;
+import com.valhallagame.featserviceserver.trigger.FredstorpSpeedRunner;
+import com.valhallagame.featserviceserver.trigger.FredstorpThiefOfThieves;
 import com.valhallagame.featserviceserver.trigger.HighTimerTriggerable;
 import com.valhallagame.featserviceserver.trigger.IntCounterTriggerable;
 import com.valhallagame.featserviceserver.trigger.LowTimerTriggerable;
@@ -46,6 +48,12 @@ public class FeatService {
 
 	@Autowired
 	private TrainingEfficency trainingEfficency;
+	
+	@Autowired
+	private FredstorpSpeedRunner fredstorpSpeedRunner;
+	
+	@Autowired
+	private FredstorpThiefOfThieves fredstorpThiefOfThieves;
 
 	private Map<FeatName, IntCounterTriggerable> intCounterTriggerable = new EnumMap<>(FeatName.class);
 	private Map<FeatName, LowTimerTriggerable> lowTimerTriggerable = new EnumMap<>(FeatName.class);
@@ -56,6 +64,8 @@ public class FeatService {
 		List<FeatTrigger> allFeatTriggers = new ArrayList<>();
 		allFeatTriggers.add(killTheEinharjer);
 		allFeatTriggers.add(trainingEfficency);
+		allFeatTriggers.add(fredstorpSpeedRunner);
+		allFeatTriggers.add(fredstorpThiefOfThieves);
 
 		for (FeatTrigger ft : allFeatTriggers) {
 			if (ft instanceof IntCounterTriggerable) {
