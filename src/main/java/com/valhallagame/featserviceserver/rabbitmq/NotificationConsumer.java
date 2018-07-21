@@ -32,7 +32,7 @@ public class NotificationConsumer {
 
 	@RabbitListener(queues = { "#{featStatisticsIntCounterQueue.name}" })
 	public void receiveStatisticsIntCounter(NotificationMessage message) {
-		logger.info("Gout int counter");
+		logger.debug("Got int counter " + message);
 		Map<String, Object> data = message.getData();
 		String characterName = (String) data.get("characterName");
 		String key = (String) data.get("key");
@@ -42,7 +42,7 @@ public class NotificationConsumer {
 
 	@RabbitListener(queues = { "#{featStatisticsLowTimerQueue.name}" })
 	public void receiveStatisticsLowTimer(NotificationMessage message) {
-		logger.info("Gout low timer");
+		logger.debug("got low timer " + message);
 		Map<String, Object> data = message.getData();
 		String characterName = (String) data.get("characterName");
 		String key = (String) data.get("key");
@@ -52,7 +52,7 @@ public class NotificationConsumer {
 
 	@RabbitListener(queues = { "#{featStatisticsHighTimerQueue.name}" })
 	public void receiveStatisticsHighTimer(NotificationMessage message) {
-		logger.info("Gout high timer");
+		logger.debug("Got high timer " + message);
 		Map<String, Object> data = message.getData();
 		String characterName = (String) data.get("characterName");
 		String key = (String) data.get("key");
