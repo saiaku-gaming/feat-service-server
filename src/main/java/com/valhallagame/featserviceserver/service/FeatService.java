@@ -1,20 +1,5 @@
 package com.valhallagame.featserviceserver.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.valhallagame.characterserviceclient.CharacterServiceClient;
 import com.valhallagame.characterserviceclient.model.CharacterData;
 import com.valhallagame.common.RestResponse;
@@ -23,14 +8,16 @@ import com.valhallagame.common.rabbitmq.RabbitMQRouting;
 import com.valhallagame.featserviceclient.message.FeatName;
 import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.repository.FeatRepository;
-import com.valhallagame.featserviceserver.trigger.EinharjerSlayer;
-import com.valhallagame.featserviceserver.trigger.FeatTrigger;
-import com.valhallagame.featserviceserver.trigger.FredstorpSpeedRunner;
-import com.valhallagame.featserviceserver.trigger.FredstorpThiefOfThieves;
-import com.valhallagame.featserviceserver.trigger.HighTimerTriggerable;
-import com.valhallagame.featserviceserver.trigger.IntCounterTriggerable;
-import com.valhallagame.featserviceserver.trigger.LowTimerTriggerable;
-import com.valhallagame.featserviceserver.trigger.TrainingEfficency;
+import com.valhallagame.featserviceserver.trigger.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class FeatService {
@@ -42,9 +29,6 @@ public class FeatService {
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
-
-	@Autowired
-	private EinharjerSlayer killTheEinharjer;
 
 	@Autowired
 	private TrainingEfficency trainingEfficency;
@@ -62,7 +46,6 @@ public class FeatService {
 	@PostConstruct
 	private void init() {
 		List<FeatTrigger> allFeatTriggers = new ArrayList<>();
-		allFeatTriggers.add(killTheEinharjer);
 		allFeatTriggers.add(trainingEfficency);
 		allFeatTriggers.add(fredstorpSpeedRunner);
 		allFeatTriggers.add(fredstorpThiefOfThieves);
