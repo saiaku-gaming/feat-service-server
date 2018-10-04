@@ -129,6 +129,7 @@ public class FeatService {
 				message.addData("characterName", characterName);
 				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD.name(),
 						message);
+				logger.info("Created feat " + feat + " and sent a message to " + characterName + " about it.");
 			} else {
 				logger.warn("Feat service tried to create a feat for character {}, but no such character exists",
 						characterName);
