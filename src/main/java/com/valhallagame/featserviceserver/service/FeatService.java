@@ -30,9 +30,7 @@ public class FeatService {
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
-	@Autowired
-	private TrainingEfficency trainingEfficency;
-	
+
 	@Autowired
 	private FredstorpSpeedRunner fredstorpSpeedRunner;
 	
@@ -46,7 +44,6 @@ public class FeatService {
 	@PostConstruct
 	private void init() {
 		List<FeatTrigger> allFeatTriggers = new ArrayList<>();
-		allFeatTriggers.add(trainingEfficency);
 		allFeatTriggers.add(fredstorpSpeedRunner);
 		allFeatTriggers.add(fredstorpThiefOfThieves);
 
