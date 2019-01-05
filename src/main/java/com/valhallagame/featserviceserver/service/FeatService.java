@@ -30,9 +30,7 @@ public class FeatService {
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
-	@Autowired
-	private TrainingEfficency trainingEfficency;
-	
+
 	@Autowired
 	private FredstorpSpeedRunner fredstorpSpeedRunner;
 	
@@ -46,7 +44,6 @@ public class FeatService {
 	@PostConstruct
 	private void init() {
 		List<FeatTrigger> allFeatTriggers = new ArrayList<>();
-		allFeatTriggers.add(trainingEfficency);
 		allFeatTriggers.add(fredstorpSpeedRunner);
 		allFeatTriggers.add(fredstorpThiefOfThieves);
 
@@ -129,6 +126,7 @@ public class FeatService {
 				message.addData("characterName", characterName);
 				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD.name(),
 						message);
+				logger.info("Created feat " + feat + " and sent a message to " + characterName + " about it.");
 			} else {
 				logger.warn("Feat service tried to create a feat for character {}, but no such character exists",
 						characterName);
