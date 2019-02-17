@@ -25,7 +25,7 @@ public class FeatService {
 	@Autowired
 	CharacterServiceClient characterServiceClient;
 
-	Logger logger = LoggerFactory.getLogger(FeatService.class);
+	private static final Logger logger = LoggerFactory.getLogger(FeatService.class);
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
@@ -64,30 +64,36 @@ public class FeatService {
 	private FeatRepository featRepository;
 
 	public Feat saveFeat(Feat feat) {
+		logger.info("Saving feat {}", feat);
 		return featRepository.save(feat);
 	}
 
 	public void deleteFeat(Feat feat) {
+		logger.info("Deleting feat {}", feat);
 		featRepository.delete(feat);
 	}
 
 	public List<Feat> getFeats(String characterName) {
+		logger.info("Getting feats for {}", characterName);
 		return featRepository.findByCharacterName(characterName.toLowerCase());
 	}
 
 	public void parseIntCounterData(String characterName, String key, int count) {
+		logger.info("Parsing int count data for {} with key {} and count {}", characterName, key, count);
 		List<Feat> ownedFeats = featRepository.findByCharacterName(characterName);
 		List<IntCounterTriggerable> notOwnedFeats = filterNotOwned(intCounterTriggerable, ownedFeats);
 		notOwnedFeats.forEach(feat -> feat.intCounterTrigger(characterName, key, count));
 	}
 
 	public void parseLowTimerData(String characterName, String key, double timer) {
+		logger.info("Parsing low timer data for {} with key {} and timer {}", characterName, key, timer);
 		List<Feat> ownedFeats = featRepository.findByCharacterName(characterName);
 		List<LowTimerTriggerable> notOwnedFeats = filterNotOwned(lowTimerTriggerable, ownedFeats);
 		notOwnedFeats.forEach(feat -> feat.lowTimerTrigger(characterName, key, timer));
 	}
 
 	public void parseHighTimerData(String characterName, String key, double timer) {
+		logger.info("Parsing high timer data for {} with key {} and timer {}", characterName, key, timer);
 		List<Feat> ownedFeats = featRepository.findByCharacterName(characterName);
 		List<HighTimerTriggerable> notOwnedFeats = filterNotOwned(highTimerTriggerable, ownedFeats);
 		notOwnedFeats.forEach(feat -> feat.highTimerTrigger(characterName, key, timer));
@@ -109,6 +115,7 @@ public class FeatService {
 	}
 
 	public void createFeat(String characterName, FeatName featName) {
+		logger.info("Creating feat for {} with name {}", characterName, featName);
 		Feat feat = new Feat();
 		feat.setCharacterName(characterName.toLowerCase());
 		feat.setName(featName.name());
@@ -138,6 +145,7 @@ public class FeatService {
 	}
 
 	public void removeFeat(Feat feat) {
+		logger.info("Removing feat {}", feat);
 		try {
 			RestResponse<CharacterData> characterResp = characterServiceClient
 					.getCharacter(feat.getCharacterName());
