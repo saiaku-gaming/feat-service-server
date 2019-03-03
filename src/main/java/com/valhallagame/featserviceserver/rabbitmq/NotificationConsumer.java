@@ -29,7 +29,7 @@ public class NotificationConsumer {
 	@RabbitListener(queues = { "#{featCharacterDeleteQueue.name}" })
 	public void receiveCharacterDelete(NotificationMessage message) {
 		MDC.put("service_name", appName);
-		MDC.put("request_id", UUID.randomUUID().toString());
+		MDC.put("request_id", message.getData().get("requestId") != null ? (String)message.getData().get("requestId") : UUID.randomUUID().toString());
 
 		logger.info("Received character delete notification with message: {}", message);
 
@@ -47,7 +47,7 @@ public class NotificationConsumer {
 	@RabbitListener(queues = { "#{featStatisticsIntCounterQueue.name}" })
 	public void receiveStatisticsIntCounter(NotificationMessage message) {
 		MDC.put("service_name", appName);
-		MDC.put("request_id", UUID.randomUUID().toString());
+		MDC.put("request_id", message.getData().get("requestId") != null ? (String)message.getData().get("requestId") : UUID.randomUUID().toString());
 
 		logger.info("Got int counter " + message);
 
@@ -65,7 +65,7 @@ public class NotificationConsumer {
 	@RabbitListener(queues = { "#{featStatisticsLowTimerQueue.name}" })
 	public void receiveStatisticsLowTimer(NotificationMessage message) {
 		MDC.put("service_name", appName);
-		MDC.put("request_id", UUID.randomUUID().toString());
+		MDC.put("request_id", message.getData().get("requestId") != null ? (String)message.getData().get("requestId") : UUID.randomUUID().toString());
 
 		logger.info("got low timer " + message);
 
@@ -83,7 +83,7 @@ public class NotificationConsumer {
 	@RabbitListener(queues = { "#{featStatisticsHighTimerQueue.name}" })
 	public void receiveStatisticsHighTimer(NotificationMessage message) {
 		MDC.put("service_name", appName);
-		MDC.put("request_id", UUID.randomUUID().toString());
+		MDC.put("request_id", message.getData().get("requestId") != null ? (String)message.getData().get("requestId") : UUID.randomUUID().toString());
 
 		logger.info("Got high timer " + message);
 

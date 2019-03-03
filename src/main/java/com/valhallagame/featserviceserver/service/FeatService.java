@@ -5,13 +5,13 @@ import com.valhallagame.characterserviceclient.model.CharacterData;
 import com.valhallagame.common.RestResponse;
 import com.valhallagame.common.rabbitmq.NotificationMessage;
 import com.valhallagame.common.rabbitmq.RabbitMQRouting;
+import com.valhallagame.common.rabbitmq.RabbitSender;
 import com.valhallagame.featserviceclient.message.FeatName;
 import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.repository.FeatRepository;
 import com.valhallagame.featserviceserver.trigger.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +22,13 @@ import java.util.*;
 @Service
 public class FeatService {
 
-	@Autowired
-	CharacterServiceClient characterServiceClient;
-
 	private static final Logger logger = LoggerFactory.getLogger(FeatService.class);
 
 	@Autowired
-	private RabbitTemplate rabbitTemplate;
+	private CharacterServiceClient characterServiceClient;
 
+	@Autowired
+	private RabbitSender rabbitSender;
 
 	@Autowired
 	private FredstorpSpeedRunner fredstorpSpeedRunner;
@@ -131,7 +130,7 @@ public class FeatService {
 						characterName + " got " + feat.getName());
 				message.addData("feat", feat.getName());
 				message.addData("characterName", characterName);
-				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.ADD.name(),
+				rabbitSender.sendMessage(RabbitMQRouting.Exchange.FEAT, RabbitMQRouting.Feat.ADD.name(),
 						message);
 				logger.info("Created feat " + feat + " and sent a message to " + characterName + " about it.");
 			} else {
@@ -154,7 +153,7 @@ public class FeatService {
 				NotificationMessage message = new NotificationMessage(characterOpt.get().getOwnerUsername(),
 						feat.getCharacterName() + " lost " + feat.getName());
 				message.addData("feat", feat.getName());
-				rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(),
+				rabbitSender.sendMessage(RabbitMQRouting.Exchange.FEAT, RabbitMQRouting.Feat.REMOVE.name(),
 						message);
 			} else {
 				logger.warn("Feat service tried to remove a feat for character {}, but no such character exists",
