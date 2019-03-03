@@ -7,6 +7,7 @@ import com.valhallagame.common.JS;
 import com.valhallagame.common.RestResponse;
 import com.valhallagame.common.rabbitmq.NotificationMessage;
 import com.valhallagame.common.rabbitmq.RabbitMQRouting;
+import com.valhallagame.common.rabbitmq.RabbitSender;
 import com.valhallagame.featserviceclient.message.AddFeatParameter;
 import com.valhallagame.featserviceclient.message.GetFeatsParameter;
 import com.valhallagame.featserviceclient.message.RemoveFeatParameter;
@@ -14,7 +15,6 @@ import com.valhallagame.featserviceserver.model.Feat;
 import com.valhallagame.featserviceserver.service.FeatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +36,7 @@ public class FeatController {
 	private static final Logger logger = LoggerFactory.getLogger(FeatController.class);
 
 	@Autowired
-	private RabbitTemplate rabbitTemplate;
+	private RabbitSender rabbitSender;
 
 	@Autowired
 	private FeatService featService;
@@ -85,7 +85,7 @@ public class FeatController {
 		Optional<Feat> featOpt = feats.stream().filter(f -> f.getName().equals(input.getName().name())).findAny();
 		if (featOpt.isPresent()) {
 			featService.removeFeat(featOpt.get());
-			rabbitTemplate.convertAndSend(RabbitMQRouting.Exchange.FEAT.name(), RabbitMQRouting.Feat.REMOVE.name(),
+			rabbitSender.sendMessage(RabbitMQRouting.Exchange.FEAT, RabbitMQRouting.Feat.REMOVE.name(),
 					new NotificationMessage(character.getOwnerUsername(), "feat item removed"));
 			return JS.message(HttpStatus.OK, "Feat item removed");
 		} else {
