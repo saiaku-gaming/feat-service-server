@@ -39,6 +39,8 @@ public class NotificationConsumer {
 			for (Feat feat : feats) {
 				featService.deleteFeat(feat);
 			}
+		} catch (Exception e) {
+			logger.error("Error while processing Character Delete notification", e);
 		} finally {
 			MDC.clear();
 		}
@@ -57,6 +59,8 @@ public class NotificationConsumer {
 			String key = (String) data.get("key");
 			int count = (Integer) data.get("count");
 			featService.parseIntCounterData(characterName, key, count);
+		} catch(Exception e) {
+			logger.error("Error while processing Statistics Int Counter notification", e);
 		} finally {
 			MDC.clear();
 		}
@@ -75,6 +79,8 @@ public class NotificationConsumer {
 			String key = (String) data.get("key");
 			double timer = (Double) data.get("timer");
 			featService.parseLowTimerData(characterName, key, timer);
+		} catch(Exception e) {
+			logger.error("Error while processing Statistics Low Timer notification", e);
 		} finally {
 			MDC.clear();
 		}
@@ -93,6 +99,8 @@ public class NotificationConsumer {
 			String key = (String) data.get("key");
 			double timer = (Double) data.get("timer");
 			featService.parseHighTimerData(characterName, key, timer);
+		} catch (Exception e) {
+			logger.error("Error while processing Statistics High Timer notification", e);
 		} finally {
 			MDC.clear();
 		}
