@@ -91,12 +91,12 @@
 		<dependency>
 			<groupId>com.valhallagame.valhalla</groupId>
 			<artifactId>feat-service-client</artifactId>
-            <version>1.6</version>
+            <version>1.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.valhallagame.valhalla</groupId>
 			<artifactId>statistics-service-client</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -36,6 +36,15 @@ public class FeatService {
 	@Autowired
 	private FredstorpThiefOfThieves fredstorpThiefOfThieves;
 
+	@Autowired
+	private Explorer explorer;
+
+	@Autowired
+	private JotunnSlayer jotunnSlayer;
+
+	@Autowired
+	private TheChieftainsDemise theChieftainsDemise;
+
 	private Map<FeatName, IntCounterTriggerable> intCounterTriggerable = new EnumMap<>(FeatName.class);
 	private Map<FeatName, LowTimerTriggerable> lowTimerTriggerable = new EnumMap<>(FeatName.class);
 	private Map<FeatName, HighTimerTriggerable> highTimerTriggerable = new EnumMap<>(FeatName.class);
@@ -45,6 +54,9 @@ public class FeatService {
 		List<FeatTrigger> allFeatTriggers = new ArrayList<>();
 		allFeatTriggers.add(fredstorpSpeedRunner);
 		allFeatTriggers.add(fredstorpThiefOfThieves);
+		allFeatTriggers.add(explorer);
+		allFeatTriggers.add(jotunnSlayer);
+		allFeatTriggers.add(theChieftainsDemise);
 
 		for (FeatTrigger ft : allFeatTriggers) {
 			if (ft instanceof IntCounterTriggerable) {
