@@ -1,13 +1,11 @@
 package com.valhallagame.featserviceserver.trigger;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.valhallagame.featserviceclient.message.FeatName;
 import com.valhallagame.featserviceserver.service.FeatService;
 import com.valhallagame.statisticsserviceclient.message.StatisticsKey;
-
 import lombok.EqualsAndHashCode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +24,7 @@ public class FredstorpSpeedRunner extends FeatTrigger implements LowTimerTrigger
 			return;
 		}
 
-		if (timer > 300.0f) {
+        if (timer > 600.0f) {
 			return;
 		}
 
